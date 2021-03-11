@@ -1,0 +1,64 @@
+<template>
+  <div id="app">
+    <AddTodo v-on:add-todo="addTodo" />
+    <Todos v-bind:todos="todos" v-on:del-todo="deleteTodo" />
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+
+import Todos from '../components/Todos.vue';
+import AddTodo from '../components/AddTodo.vue';
+
+
+export default {
+  name: 'TodoComponent',
+  components: {
+    AddTodo,
+    Todos,
+  },
+  data(){
+    return {
+      todos: []
+    }
+  },
+  methods: {
+    deleteTodo(id){
+      axios.delete(`https://jsonplaceholder.typicode.com/todos/${id}`)
+        .then(() => this.todos = this.todos.filter(todo => todo.id !== id))
+        .catch(err => console.log(err))
+      
+      console.log(id);
+    },
+    addTodo(todo){
+      const { title, completed } = todo;
+      
+      axios.post('https://jsonplaceholder.typicode.com/todos', {
+        title,
+        completed
+      })
+        .then(res => this.todos = [res.data, ...this.todos])
+        .catch(err => console.log(err))
+
+      
+    }
+  },
+  created(){
+    axios.get('https://jsonplaceholder.typicode.com/todos?_limit=5')
+      .then(res => this.todos = res.data)
+      .catch(err => console.log(err))
+  }
+}
+</script>
+
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+</style>
